@@ -6,6 +6,8 @@ const UserController = require('./controllers/UserController')
 
 const routes = express.Router();
 routes.post('/collect', CollectController.store);
+routes.get('/collect/:id', CollectController.SelecionaColeta);
+
 routes.get('/collectToday', CollectController.indexToday);
 routes.get('/collectDate/:date', CollectController.indexDate);
 routes.post('/collectDate', CollectController.updateCollect);

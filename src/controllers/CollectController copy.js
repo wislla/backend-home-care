@@ -47,22 +47,6 @@ module.exports={
           });
         return res.json(coletas);
     },
-    async SelecionaColeta (req, res){
-      const { id } = req.params;
-     
-      const collect = await Collect.findAll({
-          where: {
-              id : {
-              [Op.like]: id
-            }
-          },
-          order: [
-              ['createdAt', 'ASC']
-          ],
-      });
-      
-      return res.json(collect);
-  },
     async index (req, res){
         
         const collect = await Collect.findAll();
