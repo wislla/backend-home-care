@@ -3,9 +3,9 @@ const { Op } = require("sequelize");
 
 function previsao(ordem) {
     if (ordem == 1 || ordem == 2)
-        return "7h15 - 7h30"
+        return "07h15 - 7h30"
     if (ordem == 3 || ordem == 4)
-        return "7h30 - 8h00"
+        return "07h30 - 8h00"
     if (ordem == 5 || ordem == 6)
         return "8h00 - 8h20"
     if (ordem == 7 || ordem == 8)
@@ -15,6 +15,36 @@ function previsao(ordem) {
     else return "sem previsao"
     
 }
+
+function order(previsao) {
+  if (previsao == '07h10 - 8h')
+      return "1"
+      if (previsao == '08h10 - 9h')
+      return "2"
+      if (previsao == '10h - 11h')
+      return "3"
+      if (previsao == '11h - 12h')
+      return "4"
+      if (previsao == '14h30 - 16h')
+      return "5"
+}
+
+function previsaoNumber(previsao) {
+  if (previsao == '1')
+      return "07h10 - 8h"
+      if (previsao == '2')
+      return "08h10 - 9h"
+      if (previsao == '3')
+      return "10h - 11h"
+      if (previsao == '4')
+      return "11h - 12h"
+      if (previsao == '5')
+      return "14h30 - 16h"
+
+  
+}
+
+
 module.exports={
     
     async ColetasSelecionadas (req, res){
@@ -32,24 +62,26 @@ module.exports={
 
             },
             order: [
-                ['createdAt', 'ASC']
+              ['previsao', 'ASC']
             ],
         });
         let coletas =[];
           let i = 0;
 
           collect.forEach(coleta => {
-            coleta.dataValues.ordem = i+1;
+            coleta.dataValues.ordem = order(coleta.dataValues.previsao);
             
             coletas.push(coleta)
               
               i++;
           });
+
+        
+          console.log(coletas);
         return res.json(coletas);
     },
     async SelecionaColeta (req, res){
       const { id } = req.params;
-     
       const collect = await Collect.findAll({
           where: {
               id : {
@@ -57,9 +89,10 @@ module.exports={
             }
           },
           order: [
-              ['createdAt', 'ASC']
+              ['previsao', 'ASC']
           ],
       });
+      console.log(collect);
       
       return res.json(collect);
   },
@@ -79,7 +112,7 @@ module.exports={
               }
             },
             order: [
-                ['createdAt', 'ASC']
+                ['created_at', 'ASC']
             ],
             
           });
@@ -88,18 +121,40 @@ module.exports={
           let i = 0;
 
           rows.forEach(coleta => {
-            coleta.dataValues.ordem = i+1;
-            coleta.dataValues.previsao = previsao(i+1);
+            coleta.dataValues.ordem = order(coleta.dataValues.previsao);
+           
             coletas.push(coleta)
               
               i++;
           });
           return res.json(coletas);
     },
+
+    async ListForDateHour (req, res){
+      const { dt_coleta, previsao } = req.params;
+      console.log(previsaoNumber(previsao))
+      const { count, rows } = await Collect.findAndCountAll({
+          where: {
+              dt_coleta,
+              previsao: previsaoNumber(previsao),
+          },
+          order: [
+              ['created_at', 'ASC']
+          ],
+          
+        });
+
+     
+        return res.json(count);
+  },
+
      updateCollect (req, res){
         const id = req.body;
         id.forEach(async element => {
-             await Collect.update({ coletado: "true",responsavel:element.responsavel }, {
+             await Collect.update({ 
+               coletado: "true",
+               responsavel:element.responsavel,
+              }, {
                 where: {
                   id: element.id,
                 }
@@ -136,6 +191,8 @@ module.exports={
             obs,
             valor_total,
             recebido,
+            previsao,
+            isolamento,
             
         } = req.body;
 
@@ -166,7 +223,8 @@ module.exports={
             valor_total,
             recebido,
             coletado: 'false',
-            previsao: previsao(count+1),
+            previsao,
+            isolamento,
         });
         
        return res.json(collect);

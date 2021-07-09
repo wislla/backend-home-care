@@ -20,6 +20,8 @@ class Collect extends Model{
             coletado: DataTypes.STRING,
             responsavel: DataTypes.STRING,
             previsao: DataTypes.STRING,
+            isolamento: DataTypes.STRING,
+            
 
         },{
             tableName: 'collect',

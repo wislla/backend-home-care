@@ -7,6 +7,8 @@ const UserController = require('./controllers/UserController')
 const routes = express.Router();
 routes.post('/collect', CollectController.store);
 routes.get('/collect/:id', CollectController.SelecionaColeta);
+routes.get('/collect-hour/:dt_coleta/:previsao', CollectController.ListForDateHour);
+
 
 routes.get('/collectToday', CollectController.indexToday);
 routes.get('/collectDate/:date', CollectController.indexDate);
